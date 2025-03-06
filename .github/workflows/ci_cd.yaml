@@ -3,7 +3,7 @@ name: Scheduled Build & Run
 on:
   schedule:
     - cron: "*/30 * * * *" # 30분마다 실행
-
+  workflow_dispatch: # 수동 실행 기능 추가
 jobs:
   build-and-run:
     runs-on: ubuntu-latest
