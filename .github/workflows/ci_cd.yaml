@@ -26,11 +26,17 @@ jobs:
           java-version: '17'
           cache: maven
 
-      - name: Maven 빌드 (라이브러리 다운로드 및 JAR 생성)
+      - name: Maven 빌드 (JAR 생성)
         run: mvn clean package
 
-      - name: 실행
-        run: java -jar target/naver-search-1.0-SNAPSHOT.jar
+      - name: 빌드된 JAR 파일 확인
+        run: ls -la target/
+
+      - name: 실행 (자동으로 생성된 JAR 파일 찾기)
+        run: |
+          JAR_FILE=$(ls target/*.jar | head -n 1)
+          echo "실행할 JAR 파일: $JAR_FILE"
+          java -jar $JAR_FILE
         env:
           NAVER_CLIENT_ID: ${{ secrets.NAVER_CLIENT_ID }}
           NAVER_CLIENT_SECRET: ${{ secrets.NAVER_CLIENT_SECRET }}
