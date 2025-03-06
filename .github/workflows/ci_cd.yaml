@@ -1,12 +1,12 @@
-name: Scheduled Build & Run
+name: Scheduled Run
 
 on:
   schedule:
     - cron: "*/30 * * * *" # 30분마다 실행
-  workflow_dispatch: # 수동 실행 기능 추가
+  workflow_dispatch: # 수동 실행 가능하도록 추가
 
 jobs:
-  build-and-run:
+  run-java-app:
     runs-on: ubuntu-latest
     
     env:
@@ -25,22 +25,11 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Gradle 설치 (gradlew 없을 경우)
-        run: |
-          if [ ! -f ./gradlew ]; then
-            echo "gradlew 파일이 없음. Gradle Wrapper 생성 중..."
-            gradle wrapper
-          fi
-        shell: bash
-
-      - name: Gradle 실행 권한 부여
-        run: chmod +x ./gradlew
-
-      - name: Gradle 빌드
-        run: ./gradlew build
+      - name: Java 파일 컴파일
+        run: javac -d out $(find . -name "*.java")
 
       - name: 실행
-        run: java -jar build/libs/*.jar
+        run: java -cp out Application
         env:
           NAVER_CLIENT_ID: ${{ secrets.NAVER_CLIENT_ID }}
           NAVER_CLIENT_SECRET: ${{ secrets.NAVER_CLIENT_SECRET }}
