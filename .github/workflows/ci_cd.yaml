@@ -25,23 +25,19 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Gradle Wrapper 다운로드
+      - name: Gradle 설치 (gradlew 없을 경우)
         run: |
           if [ ! -f ./gradlew ]; then
-            echo "Gradle Wrapper not found! Downloading..."
-            ./gradlew wrapper || sudo apt-get install gradle -y
+            echo "gradlew 파일이 없음. Gradle Wrapper 생성 중..."
+            gradle wrapper
           fi
+        shell: bash
 
       - name: Gradle 실행 권한 부여
         run: chmod +x ./gradlew
 
-      - name: Gradle 빌드 (Wrapper가 없으면 직접 실행)
-        run: |
-          if [ -f ./gradlew ]; then
-            ./gradlew build
-          else
-            gradle build
-          fi
+      - name: Gradle 빌드
+        run: ./gradlew build
 
       - name: 실행
         run: java -jar build/libs/*.jar
