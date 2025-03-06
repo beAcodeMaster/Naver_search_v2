@@ -1,0 +1,51 @@
+name: Scheduled Build & Run
+
+on:
+  schedule:
+    - cron: "*/30 * * * *" # 30분마다 실행
+
+jobs:
+  build-and-run:
+    runs-on: ubuntu-latest
+    
+    env:
+      MODE: ${{ vars.MODE }}
+      SEARCH_KEYWORD: ${{ vars.SEARCH_KEYWORD }}
+    
+    steps:
+      - name: 저장소 체크아웃
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_ACTIONS_TOKEN }} # ✅ 토큰 추가 (Organization 레포지토리 업데이트용)
+
+      - name: JDK 설정
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Gradle 캐싱 설정
+        uses: actions/cache@v3
+        with:
+          path: ~/.gradle/caches
+          key: gradle-${{ runner.os }}
+          restore-keys: gradle-${{ runner.os }}
+
+      - name: Gradle 빌드
+        run: ./gradlew build
+
+      - name: 실행
+        run: java -jar build/libs/*.jar
+        env:
+          NAVER_CLIENT_ID: ${{ secrets.NAVER_CLIENT_ID }}
+          NAVER_CLIENT_SECRET: ${{ secrets.NAVER_CLIENT_SECRET }}
+
+      - name: 변경사항 커밋 및 푸시
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git add .
+          git commit -m "🔄 자동 업데이트: $(date)"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_ACTIONS_TOKEN }} # ✅ 푸시 권한이 필요한 경우 추가
