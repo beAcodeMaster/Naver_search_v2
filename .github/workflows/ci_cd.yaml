@@ -1,54 +1,54 @@
-name: Scheduled Build & Run
+# name: Scheduled Build & Run
 
-on:
-  schedule:
-    - cron: "*/30 * * * *" # 30분마다 실행
-  workflow_dispatch: # 수동 실행 기능 추가
+# on:
+#   schedule:
+#     - cron: "*/30 * * * *" # 30분마다 실행
+#   workflow_dispatch: # 수동 실행 기능 추가
 
-jobs:
-  build-and-run:
-    runs-on: ubuntu-latest
+# jobs:
+#   build-and-run:
+#     runs-on: ubuntu-latest
     
-    env:
-      MODE: ${{ vars.MODE }}
-      SEARCH_KEYWORD: ${{ vars.SEARCH_KEYWORD }}
+#     env:
+#       MODE: ${{ vars.MODE }}
+#       SEARCH_KEYWORD: ${{ vars.SEARCH_KEYWORD }}
     
-    steps:
-      - name: 저장소 체크아웃
-        uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GH_ACTIONS_TOKEN }}
+#     steps:
+#       - name: 저장소 체크아웃
+#         uses: actions/checkout@v4
+#         with:
+#           token: ${{ secrets.GH_ACTIONS_TOKEN }}
 
-      - name: JDK 설정
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-          cache: maven
+#       - name: JDK 설정
+#         uses: actions/setup-java@v3
+#         with:
+#           distribution: 'temurin'
+#           java-version: '17'
+#           cache: maven
 
-      - name: Maven 빌드 (JAR 생성)
-        run: mvn clean package
+#       - name: Maven 빌드 (JAR 생성)
+#         run: mvn clean package
 
-      - name: 빌드된 JAR 파일 확인
-        run: ls -la target/
+#       - name: 빌드된 JAR 파일 확인
+#         run: ls -la target/
 
-      - name: 실행 (자동으로 생성된 JAR 파일 찾기)
-        run: |
-          JAR_FILE=$(ls target/*.jar | head -n 1)
-          echo "실행할 JAR 파일: $JAR_FILE"
-          java -jar $JAR_FILE
-        env:
-          NAVER_CLIENT_ID: ${{ secrets.NAVER_CLIENT_ID }}
-          NAVER_CLIENT_SECRET: ${{ secrets.NAVER_CLIENT_SECRET }}
+#       - name: 실행 (자동으로 생성된 JAR 파일 찾기)
+#         run: |
+#           JAR_FILE=$(ls target/*.jar | head -n 1)
+#           echo "실행할 JAR 파일: $JAR_FILE"
+#           java -jar $JAR_FILE
+#         env:
+#           NAVER_CLIENT_ID: ${{ secrets.NAVER_CLIENT_ID }}
+#           NAVER_CLIENT_SECRET: ${{ secrets.NAVER_CLIENT_SECRET }}
 
-      - name: 변경사항 커밋 및 푸시 (자동 병합 적용)
-        run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
+#       - name: 변경사항 커밋 및 푸시 (자동 병합 적용)
+#         run: |
+#           git config --global user.name "github-actions"
+#           git config --global user.email "github-actions@github.com"
 
-          git pull origin main --rebase || echo "자동 병합 실패 - 수동 푸시 진행"
-          git add .
-          git commit -m "🔄 자동 업데이트: $(date)" || echo "변경 사항 없음"
-          git push origin main
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_ACTIONS_TOKEN }}
+#           git pull origin main --rebase || echo "자동 병합 실패 - 수동 푸시 진행"
+#           git add .
+#           git commit -m "🔄 자동 업데이트: $(date)" || echo "변경 사항 없음"
+#           git push origin main
+#         env:
+#           GITHUB_TOKEN: ${{ secrets.GH_ACTIONS_TOKEN }}
